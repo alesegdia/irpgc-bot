@@ -29,12 +29,13 @@ send_msg("USER " .. botdata.login .. " 8 * :" .. botdata.name)
 
 local saychan = function( msg )
   send_msg("PRIVMSG " .. botdata.channel .. " :" .. msg)
+  print("DEBUG: " .. msg)
 end
 
 
 local salir = false
 local premios = {
-  "a pizza", "a candy",
+  "a pizza", "a candy", "a hamburguer",
   "a night with Laci J. Mailey! http://www.cineol.net/galeria/fotos/laci-j-mailey_63371.jpg ",
   "a night with Jessy Schram! http://www.listal.com/viewimage/1608681h ",
   "a night with Sarah Carter! http://iv1.lisimg.com/image/350293/600full-sarah-carter.jpg "
@@ -99,12 +100,37 @@ local game = {
 
   player_died = function( g, nick )
 	saychan(nick .. "'s soul rises to heaven.")
-	-- elmina a nick
+	local todel = {}
+	for k,v in pairs(g.players_all) do
+	  if v == nick then 
+		todel = k
+	  end
+	end
+	table.remove(g.players_all,todel)
+
+	todel = {}
+	while todel ~= nil do
+	  todel = nil
+	  for k,v in pairs(g.turns) do
+		if v == nick then todel = k break end
+	  end
+	  table.remove(g.turns,todel)
+	end
+
+	if #g.players_all < 1 then
+  	  g.currentState = "none"
+  	  for k,v in pairs(g.players_all) do
+		g.players_all[k] = nil
+	  end
+	  saychan("All died and nobody ever knew about them.")
+	  g.turns = {}
+	end
+
   end,
 
   damage = function(self, player, amount)
 	player.hp = player.hp - amount
-	if player.hp <= 0 then self:player_died(player.player) end
+	if player.hp <= 0 then self:player_died(player.nick) end
   end,
 
   create_player = function( g, nick )
@@ -130,6 +156,9 @@ local game = {
 
   turns = {},
   turn = "DEBUG_TURNO",
+  reset = function(player)
+	player.hp = 40
+  end,
 
   states = {
 
@@ -162,6 +191,7 @@ local game = {
 		  end
 		  --table.insert( g.players, nick )
 		  table.insert(g.players_all, nick)
+		  g.reset(g.players[nick])
 		end
 	  end,
 	  ["begin"] = function( g, nick, args )
@@ -187,8 +217,11 @@ local game = {
 			  if numpl == 1 then tatocao = g.players[v]  end
 			  numpl = numpl - 1
 			end
-			g.damage(g,tatocao,self.atk + math.random(5))
-			saychan("Orco: take this, bastard! (" .. tatocao.nick .. "'s health downs to " .. tatocao.hp .. " HP)")
+			local deal = self.atk + math.random(5)
+			local newhp = tatocao.hp - deal
+			if newhp < 0 then newhp = 0 end
+			saychan("Orco: take this, bastard! (" .. tatocao.nick .. "'s health downs to " .. newhp .. " HP)")
+			g.damage(g,tatocao,deal)
 		  end
 		}
 
@@ -215,8 +248,7 @@ local game = {
   advance_turn = function(self)
 	table.remove(self.turns)
 	self.turn = self.turns[#self.turns]
-	saychan("===================================")
-	saychan("Turno de " .. self.turn)
+	saychan("[" .. self.turn .. "'S TURN]")
   end,
 
   add_turns = function(self)
@@ -237,7 +269,7 @@ local game = {
 	self:advance_turn()
 	if self.turn == "orco" then
 	  self.enemy.turn( self.enemy, self.players )
-	  self:advance_turn()
+	  if self.currentState == "playing" then self:advance_turn() end
 	end
   end,
 
@@ -246,6 +278,16 @@ local game = {
   	  self.currentState = "none"
   	  for k,v in pairs(self.players_all) do
 		self.players_all[k] = nil
+	  end
+	elseif command == "playerlist" then
+	  if self.currentState == "playing" then
+		str = "Players playing: "
+		local i = 1
+		for _,v in pairs(self.players_all) do
+		  str = str .. v
+		  if i ~= #self.players_all then str = str .. ", " end
+		end
+		saychan(str)
 	  end
 	elseif contains(self.states[self.currentState].cmd_valid, command) then
 	  self.states[self.currentState][command]( self, nick, args )
@@ -272,42 +314,44 @@ local game = {
 send_msg("JOIN " .. botdata.channel)
 while not salir do
   local recv = server:receive()
-  print("UNFORMATTED: " .. recv)
-  local nick, msg = string.match(recv,"^:(.*)!.*:(.*)")
+  if recv ~= nil then
+	print("UNFORMATTED: " .. recv)
+	local nick, msg = string.match(recv,"^:(.*)!.*:(.*)")
 
-  if string.find(recv,"PING") then
-  	print("PONG!")
-  	send_msg("PONG")
-  elseif string.find(recv,"JOIN") then
-	send_msg("PRIVMSG ChanServ op " .. botdata.channel .. " " .. botdata.nick)
-	print("PRIVMSG ChanServ op " .. botdata.channel .. " " .. botdata.nick)
-	print("OP OP OP OP")
-  elseif nick ~= nil and msg ~= nil then
-	print ("SOMEONE: " .. nick .. ": " .. msg )
-	local command, args = string.match(msg, "!([^ ]*) (.*)")
-	if args == nil then
-	  command, args = string.match(msg, "!([^ ]*)")
-	end
-	if command ~= nil then
-	  --print("COMMAND: " .. command) print("ARGS" .. args)
-	  if args ~= nil then do_cmd( nick, command, string_split(args) )
-	  else do_cmd( nick, command ) end
-	else
-	  print("aver..")
-	  local command, args = string.match(msg, "@([^ ]*)")
+	if string.find(recv,"PING") then
+	  print("PONG!")
+	  send_msg("PONG")
+	elseif string.find(recv,"JOIN") then
+	  send_msg("PRIVMSG ChanServ op " .. botdata.channel .. " " .. botdata.nick)
+	  print("PRIVMSG ChanServ op " .. botdata.channel .. " " .. botdata.nick)
+	  print("OP OP OP OP")
+	elseif nick ~= nil and msg ~= nil then
+	  print ("SOMEONE: " .. nick .. ": " .. msg )
+	  local command, args = string.match(msg, "!([^ ]*) (.*)")
+	  if args == nil then
+		command, args = string.match(msg, "!([^ ]*)")
+	  end
 	  if command ~= nil then
-	  	print("GAME!")
-	  	if args == nil then game:step( nick, command )
-		else game:step( nick, command, string_split(args) ) end
+		--print("COMMAND: " .. command) print("ARGS" .. args)
+		if args ~= nil then do_cmd( nick, command, string_split(args) )
+		else do_cmd( nick, command ) end
+	  else
+		print("aver..")
+		local command, args = string.match(msg, "@([^ ]*)")
+		if command ~= nil then
+		  print("GAME!")
+		  if args == nil then game:step( nick, command )
+		  else game:step( nick, command, string_split(args) ) end
+		end
 	  end
 	end
+	if salir then
+	  local f,err = io.open("playersbak.dat", "w+")
+	  if not f then return print(err) end
+	  f:write(json.encode(game.players))
+	  f:close()
+	  send_msg("PART " .. botdata.channel .. " :que os follen, hijos de puta")
+	end
+	print("\n")
   end
-  if salir then
-	local f,err = io.open("playersbak.dat", "w+")
-	if not f then return print(err) end
-	f:write(json.encode(game.players))
-	f:close()
-  	send_msg("PART " .. botdata.channel .. " :que os follen, hijos de puta")
-  end
-  print("\n")
 end
