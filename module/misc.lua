@@ -55,9 +55,9 @@ local Base = {
   }
 }
 
-BaseMod = class("BaseMod")
-BaseMod:include(Mod)
-BaseMod:include(Base)
+MiscMod = class("MiscMod")
+MiscMod:include(Mod)
+MiscMod:include(Base)
 
 
-return BaseMod()
+return MiscMod()
