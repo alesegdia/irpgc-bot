@@ -1,74 +1,33 @@
 
-
 local util = require("util")
 local botirc = require("botirc")
--- require("entities")
 local botdata = require("botdata")
-
 
 botirc:connect()
 botirc:login()
 
+local basemod = require("module.base")
+botirc:add_module(basemod)
 
-
-local salir = false
-
-local premios = {
-  "a pizza", "a candy", "a hamburguer",
-  "a night with Laci J. Mailey! http://www.cineol.net/galeria/fotos/laci-j-mailey_63371.jpg ",
-  "a night with Jessy Schram! http://www.listal.com/viewimage/1608681h ",
-  "a night with Sarah Carter! http://iv1.lisimg.com/image/350293/600full-sarah-carter.jpg "
-}
+botirc:send_msg("JOIN " .. botdata.channel)
+botirc:loop()
 
 local automsg = nil
 
-local do_cmd =
-{
-  ["google"] = function( nick, args )
-	if #args ~= 0 then
-	  local glgstr = ""
-	  for k,w in pairs(args) do
-		glgstr = glgstr .. w
-		if k ~= #args then glgstr = glgstr .. "+" end
-	  end
-	  botirc:say_chan("https://www.google.es/search?q=" .. glgstr)
-	end
-  end,
-  ["arcarajo"] = function( nick, command, args )
-	salir = true
-  end,
-  ["automsg"] = function( nick, args )
-	if botdata.is_op(nick) then
-	  local str = ""
-	  for k,v in pairs(args) do
-		str = str .. v .. " "
-	  end
-	  automsg = str
-	end
-  end,
-  ["roll"] = function( nick, args )
-	if botdata.is_op(nick) then
-	  local numpremio = math.random(#premios)
-	  botirc:say_chan("Your prize is " .. premios[numpremio] .. "!")
-	else
-	  botirc:say_chan("Ohhh, your price is a kick!")
-	  botirc:send_msg("KICK " .. botdata.channel .. " " .. nick .. " :bad luck man, try next time D: ")
-	end
-  end
-}
-
-do_cmd.mt = {}
-setmetatable(do_cmd, do_cmd.mt)
-
-do_cmd.mt.__index = function( nick, args ) print "METATABLE!" end
 
 
-
+--[[
 local game = {
 
   -- DATA
   players = {},
   players_all = {},
+  currentState = "none",
+  players = {},
+  enemy = nil,
+  endturn = false,
+  turns = {},
+  turn = "DEBUG_TURNO",
 
   -- GAME STATES
   next_state = function( g, state, force, command, args )
@@ -124,8 +83,6 @@ local game = {
 	end
   end,
 
-  enemy = nil,
-  endturn = false,
 
   player_exists = function( g, player_name )
   	local var = g.players[player_name] or nil
@@ -133,8 +90,6 @@ local game = {
   	return true
   end,
 
-  turns = {},
-  turn = "DEBUG_TURNO",
   reset = function(player)
 	player.hp = 100
   end,
@@ -142,10 +97,7 @@ local game = {
   states = {
 
   	-- Still no games!
-	["none"] = {
-	  cmd_valid = {
-	  	"start"
-	  },
+	["none"] = { cmd_valid = { "start" },
 	  ["start"] = function( g, nick, args )
 		botirc:say_chan("GET READY TO PLAY IRPGC!! Awaiting registrations...")
 		g.players = util.json2table("playersbak.dat")
@@ -154,10 +106,7 @@ local game = {
 	},
 
 	-- Accepting players
-	["start"] = {
-	  cmd_valid = {
-		"register", "begin"
-	  },
+	["start"] = { cmd_valid = { "register", "begin" },
 	  ["register"] = function( g, nick, args )
 	  	if not util.contains( g.players_all, nick ) then
 		  if g.players[nick] == nil  then
@@ -183,9 +132,7 @@ local game = {
 
 	-- Playing the game
 	["fight"] = {
-	  cmd_valid = {
-		"init", "attack"
-	  },
+	  cmd_valid = { "init", "attack" },
 	  -- Select enemies and skill for this battle
 	  ["init"] = function( g, nick, skill )
 		g.enemy = {
@@ -271,6 +218,7 @@ local game = {
 		self.players_all[k] = nil
 	  end
 	  --]]
+	  --[[
 	elseif command == "playerlist" then
 	  if self.currentState == "fight" then
 		str = "Players playing: "
@@ -290,64 +238,6 @@ local game = {
 	end
   end,
 
-  currentState = "none",
-  players = {}
 }
---require("rpgame")
-
-local options = {
-  valid = "!@",
-  ["!"] = function( nick, command, args )
-  	if util.contains_key(do_cmd, command) then
-	if args ~= "" then
-	  print("asd")
-	  do_cmd[command](nick, util.string_split(args))
-	else
-	  print("qwe")
-	  do_cmd[command](nick)
-	end
-  end
-  end,
-  ["@"] = function( nick, command, args )
-	game:step( nick, command, util.string_split(args))
-  end,
-  ["invalid"] = function( nick, cmd, args ) end
-}
-
-
-local do_irc = {
-  ["PING"] = function( src, channel, msg )
-	print("PONG!")
-	botirc:send_msg("PONG")
-  end,
-  ["PRIVMSG"] = function( src, channel, msg )
-	local nick = string.match(src, "(.*)!")
-	print ("SOMEONE: " .. nick .. ": " .. msg )
-	local t, command, _, args = string.match(msg, "(["..options.valid.."])([^ ]*)( ?)(.*)")
-	--if command ~= nil and args ~= nil and options[t] ~= nil then
-	  if util.contains_key(options, t) then
-		options[t]( nick, command, args )
-	  end
-	--end
-  end
-}
-
-
-botirc:send_msg("JOIN " .. botdata.channel)
-while not salir do
-  local recv = botirc:receive()
-  if recv ~= nil then
-	local comando = util.ircparse(recv)
-	print("UNFORMATTED: " .. recv)
-	local nick, msg = string.match(recv,"^:(.*)!.*(:.*)")
-	if util.contains_key( do_irc, comando[1]) then
-	  do_irc[comando[1]]( comando[0], comando[2], comando[3] )
-	end
-	if salir then
-	  util.table2json("playersbak.dat", game.players)
-	  botirc:send_msg( "PART " .. botdata.channel .. " :ggbb" )
-	end
-	print("\n")
-  end
-end
+--]]
 
