@@ -1,8 +1,6 @@
 
-local botdata = require("botdata")
 local socket = require("socket")
-local cqueues = require("cqueues")
-util = require("util")
+require('module.mod')
 
 local botirc = {
 

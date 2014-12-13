@@ -1,5 +1,4 @@
 
-local pl = require 'pl.pretty'
 
 local premios = {
   "a pizza", "a candy", "a hamburguer",
@@ -8,31 +7,17 @@ local premios = {
   "a night with Sarah Carter! http://iv1.lisimg.com/image/350293/600full-sarah-carter.jpg "
 }
 
-local base = {
+local Base = {
+
   init = function(self)
 
   end,
+
   cleanup = function(self)
   	print("cleaning base")
   end,
-  loop = function( self, botirc )
-	-- process all commands
-	for _,cmd in pairs(self.commands) do
-	  pl.dump(cmd)
-	  botirc:say_chan(cmd.cmd)
-	  if util.contains_key(self.actions, cmd.cmd) then
-	  	print("doweet")
-	  	self.actions[cmd.cmd](botirc, cmd.nick, cmd.args)
-	  end
-	end
-	for k,v in pairs(self.commands) do self.commands[k]=nil end
-  end,
 
-  commands = {},
-
-  notify = function( self, n, c, a )
-  	local entry = { nick = n, cmd = c, args = a }
-	table.insert( self.commands, entry)
+  modloop = function(self)
   end,
 
   actions = {
@@ -70,4 +55,9 @@ local base = {
   }
 }
 
-return base
+BaseMod = class("BaseMod")
+BaseMod:include(Mod)
+BaseMod:include(Base)
+
+
+return BaseMod()

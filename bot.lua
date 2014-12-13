@@ -1,7 +1,10 @@
 
-local util = require("util")
+class = require("lib.middleclass.middleclass")
+util = require("util")
+pl = require 'pl.pretty'
+botdata = require("botdata")
+
 local botirc = require("botirc")
-local botdata = require("botdata")
 
 botirc:connect()
 botirc:login()
