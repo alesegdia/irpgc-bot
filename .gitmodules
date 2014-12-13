@@ -1,3 +1,6 @@
 [submodule "lib/middleclass"]
 	path = lib/middleclass
 	url = https://github.com/kikito/middleclass
+[submodule "lib/lua-table-persistence"]
+	path = lib/lua-table-persistence
+	url = https://github.com/hipe/lua-table-persistence.git
