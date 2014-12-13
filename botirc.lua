@@ -1,6 +1,7 @@
 
 local botdata = require("botdata")
 local socket = require("socket")
+local cqueues = require("cqueues")
 
 local botirc = {
 
@@ -19,8 +20,7 @@ local botirc = {
   end,
 
   receive = function(self)
-	recv = self.server:receive()
-	return recv
+	return self.server:receive() or nil
   end,
 
   -- connect to server
@@ -28,6 +28,7 @@ local botirc = {
   	print("connecting")
   	print(self.server)
 	self.server = assert(socket.connect( botdata.server, 6667 ))
+  	self.server:settimeout(0)
   	print(self.server)
   end,
 
