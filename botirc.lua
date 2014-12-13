@@ -18,6 +18,11 @@ local botirc = {
   	self:send_msg("PRIVMSG " .. botdata.channel .. " :" .. msg)
   end,
 
+  receive = function(self)
+	recv = self.server:receive()
+	return recv
+  end,
+
   -- connect to server
   connect = function( self )
   	print("connecting")

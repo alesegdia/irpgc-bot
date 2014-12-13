@@ -56,6 +56,15 @@ local util = {
 	  end
 	end
 	return false
+  end,
+
+  string_split = function( str, sep )
+	sep = sep or "%S+"
+	words = {}
+	for word in str:gmatch(sep) do
+	  table.insert(words, word)
+	end
+	return words
   end
 
 }

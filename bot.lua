@@ -2,18 +2,9 @@
 
 local util = require("util")
 local botirc = require("botirc")
-require("entities")
+-- require("entities")
 local botdata = require("botdata")
 
-
-local string_split = function( str, sep )
-  sep = sep or "%S+"
-  words = {}
-  for word in str:gmatch(sep) do
-	table.insert(words, word)
-  end
-  return words
-end
 
 botirc:connect()
 botirc:login()
@@ -71,13 +62,6 @@ setmetatable(do_cmd, do_cmd.mt)
 
 do_cmd.mt.__index = function( nick, args ) print "METATABLE!" end
 
-
-
-local tablelength = function(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
-end
 
 
 local game = {
@@ -208,7 +192,7 @@ local game = {
 		  hp = 100,
 		  atk = 10,
 		  turn = function( self, players )
-			local numpl = math.random(tablelength(g.players_all))
+			local numpl = math.random(#g.players_all)
 			local tatocao
 			for k,v in pairs(g.players_all) do
 			  if numpl == 1 then tatocao = g.players[v]  end
@@ -317,7 +301,7 @@ local options = {
   	if util.contains_key(do_cmd, command) then
 	if args ~= "" then
 	  print("asd")
-	  do_cmd[command](nick, string_split(args))
+	  do_cmd[command](nick, util.string_split(args))
 	else
 	  print("qwe")
 	  do_cmd[command](nick)
@@ -325,7 +309,7 @@ local options = {
   end
   end,
   ["@"] = function( nick, command, args )
-	game:step( nick, command, string_split(args))
+	game:step( nick, command, util.string_split(args))
   end,
   ["invalid"] = function( nick, cmd, args ) end
 }
@@ -351,8 +335,7 @@ local do_irc = {
 
 botirc:send_msg("JOIN " .. botdata.channel)
 while not salir do
-  local recv = botirc.server:receive()
-
+  local recv = botirc:receive()
   if recv ~= nil then
 	local comando = util.ircparse(recv)
 	print("UNFORMATTED: " .. recv)
