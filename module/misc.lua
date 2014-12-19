@@ -7,7 +7,7 @@ local premios = {
   "a night with Sarah Carter! http://iv1.lisimg.com/image/350293/600full-sarah-carter.jpg "
 }
 
-local Base = {
+local TheMod = {
 
   init = function(self)
 
@@ -57,7 +57,7 @@ local Base = {
 
 MiscMod = class("MiscMod")
 MiscMod:include(Mod)
-MiscMod:include(Base)
+MiscMod:include(TheMod)
 
 
 return MiscMod()
