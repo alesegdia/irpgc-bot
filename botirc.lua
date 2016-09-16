@@ -48,7 +48,7 @@ local botirc = {
 		print ("IGNORE: " .. nick .. ": " .. msg )
 	  else
 		print ("SOMEONE: " .. nick .. ": " .. msg )
-		local command, _, args = string.match(msg, "!([^ ]*)( ?)(.*)")
+		local command, _, args = string.match(msg, "([^ ]*)( ?)(.*)")
 		if command ~= nil and args ~= nil then
 		  print(self.modules[1])
 		  for _,mod in pairs(self.modules) do

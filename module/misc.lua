@@ -21,7 +21,7 @@ local TheMod = {
   end,
 
   actions = {
-	["google"] = function( botirc, nick, args )
+	["!google"] = function( botirc, nick, args )
 	  if #args ~= 0 then
 		local glgstr = ""
 		for k,w in pairs(args) do
@@ -31,10 +31,10 @@ local TheMod = {
 		botirc:say_chan("https://www.google.es/search?q=" .. glgstr)
 	  end
 	end,
-  ["arcarajo"] = function( botirc, nick, args )
+  ["!arcarajo"] = function( botirc, nick, args )
 	botirc.exit = true
   end,
-  ["automsg"] = function( botirc, nick, args )
+  ["!automsg"] = function( botirc, nick, args )
 	if botirc:isop(nick) then
 	  local str = ""
 	  for k,v in pairs(args) do
@@ -43,7 +43,7 @@ local TheMod = {
 	  automsg = str
 	end
   end,
-  ["roll"] = function( botirc, nick, args )
+  ["!roll"] = function( botirc, nick, args )
 	if botirc:isop(nick) then
 	  local numpremio = math.random(#premios)
 	  botirc:say_chan("Your prize is " .. premios[numpremio] .. "!")
@@ -51,6 +51,8 @@ local TheMod = {
 	  botirc:say_chan("Ohhh, your price is a kick!")
 	  botirc:send_msg("KICK " .. botirc:getchannel() .. " " .. nick .. " :bad luck man, try next time D: ")
 	end
+  end,
+  ["default"] = function( botirc, nick, args )
   end
   }
 }
