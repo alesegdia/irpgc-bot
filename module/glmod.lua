@@ -44,9 +44,12 @@ local TheMod = {
 		local elemclas = data:getElementsByClassName("indexcommand")
 		
 		for k,v in pairs(elemclas) do
-			print(k)
-			print(string.match(v.id, '^command_(.*)'))
-			print(v.className)
+			if type(v) == "table" and v.id then
+        print(string.match(v.id, '^command_(.*)'))
+        for v in string.gmatch(string.match(v.className, '^indexcommand (.*)'), "%S+") do
+          print("\t" .. v)
+        end
+			end
 		end
 		print(elemclas[1].childNodes[1])
 	end
