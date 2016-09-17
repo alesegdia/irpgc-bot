@@ -7,7 +7,9 @@ botdata = require("botdata")
 local botirc = require("botirc")
 
 local basemod = require("module.misc")
+local glmod = require("module.glmod")
 botirc:add_module(basemod)
+botirc:add_module(glmod)
 
 botirc:connect()
 botirc:login()
