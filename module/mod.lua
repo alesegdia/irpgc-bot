@@ -1,13 +1,13 @@
 
 Mod = {
 
-  commands = {},
+  initialize = function(self)
+    self.commands = {}
+  end,
 
   loop = function( self, botirc )
 	-- process all commands
 	for _,cmd in pairs(self.commands) do
-	  pl.dump(cmd)
-	  botirc:say_chan(cmd.cmd)
 	  if util.contains_key(self.actions, cmd.cmd) then
 	  	self.actions[cmd.cmd](botirc, cmd.nick, cmd.args)
       else
