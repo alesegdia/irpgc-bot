@@ -12,7 +12,7 @@ Mod = {
 	  	self.actions[cmd.cmd](botirc, cmd.nick, cmd.args)
       else
       	if self.actions["default"] then
-      	  self.actions["default"](botirc, cmd.nick, cmd.cmd)
+      	  self.actions["default"](botirc, cmd.nick, cmd.cmd, cmd.args)
 	    end
       end
 	end

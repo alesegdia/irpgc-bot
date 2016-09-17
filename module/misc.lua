@@ -49,16 +49,16 @@ local TheMod = {
 	end
   end,
   ["!roll"] = function( botirc, nick, args )
-	if botirc:isop(nick) then
-	  local numpremio = math.random(#premios)
-	  botirc:say_chan("Your prize is " .. premios[numpremio] .. "!")
-	else
-	  botirc:say_chan("Ohhh, your price is a kick!")
-	  botirc:send_msg("KICK " .. botirc:getchannel() .. " " .. nick .. " :bad luck man, try next time D: ")
-	end
+    if botirc:isop(nick) then
+      local numpremio = math.random(#premios)
+      botirc:say_chan("Your prize is " .. premios[numpremio] .. "!")
+    else
+      botirc:say_chan("Ohhh, your price is a kick!")
+      botirc:send_msg("KICK " .. botirc:getchannel() .. " " .. nick .. " :bad luck man, try next time D: ")
+    end
   end,
-  ["default"] = function( botirc, nick, args )
-  	local vidid = string.match(args, "v=(...........)")
+  ["default"] = function( botirc, nick, cmd, args )
+  	local vidid = string.match(cmd, "v=(...........)")
   	if vidid then
   		local r, c, h = http.request("https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=" .. vidid .. "&format=json")
   		local data = json.decode(r)
@@ -67,6 +67,8 @@ local TheMod = {
   end
   }
 }
+
+TheMod.actions["!troll"] = TheMod.actions["!roll"]
 
 MiscMod = class("MiscMod")
 MiscMod:include(Mod)
