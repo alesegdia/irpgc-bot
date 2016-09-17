@@ -6,13 +6,12 @@ botdata = require("botdata")
 
 local botirc = require("botirc")
 
-botirc:connect()
-botirc:login()
-
 local basemod = require("module.misc")
 botirc:add_module(basemod)
 
-botirc:send_msg("JOIN " .. botdata.channel)
+botirc:connect()
+botirc:login()
+botirc:send_msg("JOIN " .. "#irpgc")
 botirc:loop()
 
 local automsg = nil

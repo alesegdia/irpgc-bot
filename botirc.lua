@@ -39,8 +39,8 @@ local botirc = {
   -- IRC base layer
   do_irc = {
 	["PING"] = function( self, src, channel, msg )
-	  print("PONG!")
-	  botirc:send_msg("PONG")
+	  self:send_msg("PONG " .. channel)
+	  self:send_msg("JOIN " .. "#irpgc")
 	end,
 	["PRIVMSG"] = function( self, src, channel, msg )
 	  local nick = string.match(src, "(.*)!")
