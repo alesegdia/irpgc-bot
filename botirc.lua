@@ -21,19 +21,15 @@ local botirc = {
 
   -- connect to server
   connect = function( self )
-  	print("connecting")
-  	print(self.server)
+  	print("connecting to " .. botdata.server)
 	self.server = assert(socket.connect( botdata.server, 6667 ))
   	self.server:settimeout(0)
-  	print(self.server)
   end,
 
   -- login with proper nick and user
   login = function( self )
-	print("hago el nick")
-	self:send_msg("NICK " .. botdata.nick)
-	print("hago el user")
 	self:send_msg("USER " .. botdata.login .. " 8 * :" .. botdata.name)
+	self:send_msg("NICK " .. botdata.nick)
   end,
 
   -- IRC base layer
@@ -47,10 +43,9 @@ local botirc = {
 	  if channel == botdata.nick then
 		print ("IGNORE: " .. nick .. ": " .. msg )
 	  else
-		print ("SOMEONE: " .. nick .. ": " .. msg )
+		print ("PRIVMSG: <" .. nick .. "> " .. msg )
 		local command, _, args = string.match(msg, "([^ ]*)( ?)(.*)")
 		if command ~= nil and args ~= nil then
-		  print(self.modules[1])
 		  for _,mod in pairs(self.modules) do
 			mod:notify( nick, command, util.string_split(args) )
 		  end
@@ -72,9 +67,7 @@ local botirc = {
   	return botdata.channel
   end,
 
-  -- main IRC loop
-  loop = function( self )
-	while not self.exit do
+  step = function( self )
 	  local recv = self.server:receive()
 	  if recv ~= nil then
 		local comando = util.ircparse(recv)
@@ -94,8 +87,14 @@ local botirc = {
 	  	for _,mod in pairs(self.modules) do
 	  	  mod:cleanup()
 		end
-		self:send_msg( "PART " .. botdata.channel .. " :ggbb" )
+		self:send_msg( "PART " .. botdata.channel .. " :xxa1drp" )
 	  end
+  end,
+
+  -- main IRC loop
+  loop = function( self )
+	while not self.exit do
+		self:step()
 	end
   end,
 
@@ -106,9 +105,7 @@ local botirc = {
   -- add a module
   add_module = function(self, mod)
   	mod:init()
-  	print(#self.modules)
 	table.insert( self.modules, mod )
-  	print(#self.modules)
   end
 }
 
