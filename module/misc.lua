@@ -1,4 +1,9 @@
 
+local json = require("dkjson")
+local http = require("socket.http")
+local xml = require("pl.xml")
+local gumbo = require("gumbo")
+pl = require 'pl.pretty'
 
 local premios = {
   "a pizza", "a candy", "a hamburguer",
@@ -53,6 +58,12 @@ local TheMod = {
 	end
   end,
   ["default"] = function( botirc, nick, args )
+  	local vidid = string.match(args, "v=(...........)")
+  	if vidid then
+  		local r, c, h = http.request("https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=" .. vidid .. "&format=json")
+  		local data = json.decode(r)
+  		botirc:say_chan("[YT]  " .. data["title"])
+  	end
   end
   }
 }
