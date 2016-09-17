@@ -13,7 +13,7 @@ botirc:add_module(glmod)
 
 botirc:connect()
 botirc:login()
-botirc:send_msg("JOIN " .. "#irpgc")
+botirc:send_msg("JOIN " .. botdata.channel)
 botirc:loop()
 
 local automsg = nil

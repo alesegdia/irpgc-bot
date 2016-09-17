@@ -36,7 +36,7 @@ local botirc = {
   do_irc = {
 	["PING"] = function( self, src, channel, msg )
 	  self:send_msg("PONG " .. channel)
-	  self:send_msg("JOIN " .. "#irpgc")
+	  self:send_msg("JOIN " .. botdata.channel)
 	end,
 	["PRIVMSG"] = function( self, src, channel, msg )
 	  local nick = string.match(src, "(.*)!")
