@@ -9,6 +9,16 @@ local util = require("util")
 
 local taledata = util.json2table( "taledata.json" )
 
+local trimlimitspaces = function(str)
+  while str:sub(1, 1) == " " do
+    str = string.sub(str, 2)
+  end
+  while str:byte(-1) == 32 do
+    str = string.sub(str, 1, -2)
+  end
+  return str
+end
+
 local TheMod = {
 
   init = function(self)
@@ -30,7 +40,40 @@ local TheMod = {
   end,
   
   ["default"] = function( botirc, nick, cmd, args )
-    pl.dump(args)
+    local line = cmd .. " "
+    if args then
+      for k,v in pairs(args) do
+        line = line .. v .. " "
+      end
+    end
+    
+    line = trimlimitspaces(line)
+    local matches = string.match(line, "^([^.^,]*)%?$")
+    if matches then
+      local word = trimlimitspaces(matches)
+      if taledata[word] then
+        botirc:say_chan(word .. " is " .. taledata[word] ..", " .. nick)
+      else
+        botirc:say_chan( "Dunno." )
+      end
+    else
+      pl.dump(line)
+      local word, desc = string.match(line, "^([^.^,]*) is (.*)$")
+      pl.dump(word)
+      pl.dump(desc)
+      
+      if word and desc then
+        word = trimlimitspaces(word)
+        desc = trimlimitspaces(desc)
+        if taledata[word] then
+          botirc:say_chan("Already present.")
+        else
+          botirc:say_chan( "Got it!" )
+          taledata[word] = desc
+        end
+      end
+    end
+    --[[
     if args[1] then
       if args[1] == "is" then
         local line = cmd .. " "
@@ -54,6 +97,7 @@ local TheMod = {
         end
       end
     end
+    --]]
   end
   }
 }
