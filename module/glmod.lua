@@ -5,6 +5,8 @@ local xml = require("pl.xml")
 local gumbo = require("gumbo")
 pl = require 'pl.pretty'
 
+local glcommands = nil
+
 local TheMod = {
 
   init = function(self)
@@ -31,37 +33,39 @@ local TheMod = {
   		local web_data = gumbo.parse(r)
       
       local available_gl_versions = {}
-      local glcommands = {}
-      local commands_data = web_data:getElementsByClassName("indexcommand")
-      
-      for _,html_command in pairs(commands_data) do
-        if type(html_command) == "table" and html_command.id then
-          local glcmd = string.match(html_command.id, '^command_(.*)')
-          local glversions = {}
-          
-          -- create glcommands entry
-          glcommands[glcmd] = {
-            name = glcmd,
-            versions = {},
-            versionshash = {}
-          }
+      if not glcommands then
+        glcommands = {}
+        local commands_data = web_data:getElementsByClassName("indexcommand")
+        
+        for _,html_command in pairs(commands_data) do
+          if type(html_command) == "table" and html_command.id then
+            local glcmd = string.match(html_command.id, '^command_(.*)')
+            local glversions = {}
+            
+            -- create glcommands entry
+            glcommands[glcmd] = {
+              name = glcmd,
+              versions = {},
+              versionshash = {}
+            }
 
-          for available_version in string.gmatch(string.match(html_command.className, '^indexcommand (.*)'), "%S+") do
-            print(available_version)
-            local av = string.sub(available_version, 1, -2)
-            print(av)
-            print("===")
-            if not available_gl_versions[av] then
-              available_gl_versions[av] = 1
-            end
-            if not glcommands[glcmd].versionshash[av] then
-              table.insert(glcommands[glcmd].versions, av)
-              glcommands[glcmd].versionshash[av] = true
+            for available_version in string.gmatch(string.match(html_command.className, '^indexcommand (.*)'), "%S+") do
+              print(available_version)
+              local av = string.sub(available_version, 1, -2)
+              print(av)
+              print("===")
+              if not available_gl_versions[av] then
+                available_gl_versions[av] = 1
+              end
+              if not glcommands[glcmd].versionshash[av] then
+                table.insert(glcommands[glcmd].versions, av)
+                glcommands[glcmd].versionshash[av] = true
+              end
             end
           end
         end
       end
-      
+
       if glcommands[fnarg] then
         
         local versions_response = ""
