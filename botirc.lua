@@ -105,6 +105,7 @@ local botirc = {
   loop = function( self )
     while not self.exit do
       self:step()
+      os.execute("sleep 0.1")
     end
   end,
 
