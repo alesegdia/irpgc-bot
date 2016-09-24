@@ -26,6 +26,23 @@ local TheMod = {
   end,
 
   actions = {
+  ["\\o"] = function( botirc, nick, args )
+    botirc:say_chan("o/")
+  end,
+  ["o/"] = function( botirc, nick, args )
+    botirc:say_chan("\\o")
+  end,
+  ["\\o/"] = function( botirc, nick, args )
+    botirc:say_chan("/o\\")
+  end,
+  [" /o\\"] = function( botirc, nick, args )
+    botirc:say_chan("\\o/")
+  end,
+
+  ["/o\\"] = function( botirc, nick, args )
+    botirc:say_chan("\\o/")
+  end,
+
 	["!google"] = function( botirc, nick, args )
 	  if #args ~= 0 then
 		local glgstr = ""
