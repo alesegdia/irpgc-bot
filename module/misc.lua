@@ -26,6 +26,15 @@ local TheMod = {
   end,
 
   actions = {
+  ["!todo"] = function( botirc, nick, args )
+    local f = io.open("TODO.md", "r")
+    local content = f:read("*all")
+    f:close()
+    for line in content:gmatch("[^\r\n]+") do
+      botirc:say_chan(line)
+    end
+    print(content)
+  end,
   ["\\o"] = function( botirc, nick, args )
     botirc:say_chan("o/")
   end,
