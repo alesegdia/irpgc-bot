@@ -65,7 +65,18 @@ local util = {
 	  table.insert(words, word)
 	end
 	return words
+  end,
+
+  trimlimitspaces = function(str)
+    while str:sub(1, 1) == " " do
+      str = string.sub(str, 2)
+    end
+    while str:byte(-1) == 32 do
+      str = string.sub(str, 1, -2)
+    end
+    return str
   end
+
 
 }
 

@@ -9,16 +9,6 @@ local util = require("util")
 
 local taledata = util.json2table( "taledata.json" )
 
-local trimlimitspaces = function(str)
-  while str:sub(1, 1) == " " do
-    str = string.sub(str, 2)
-  end
-  while str:byte(-1) == 32 do
-    str = string.sub(str, 1, -2)
-  end
-  return str
-end
-
 local TheMod = {
 
   init = function(self)
@@ -47,10 +37,10 @@ local TheMod = {
       end
     end
     
-    line = trimlimitspaces(line)
+    line = util.trimlimitspaces(line)
     local matches = string.match(line, "^([^.^,]*)%?$")
     if matches then
-      local word = trimlimitspaces(matches)
+      local word = util.trimlimitspaces(matches)
       if taledata[word] then
         botirc:say_chan(word .. " is " .. taledata[word] ..", " .. nick)
       else
@@ -63,8 +53,8 @@ local TheMod = {
       pl.dump(desc)
       
       if word and desc then
-        word = trimlimitspaces(word)
-        desc = trimlimitspaces(desc)
+        word = util.trimlimitspaces(word)
+        desc = util.trimlimitspaces(desc)
         if taledata[word] then
           botirc:say_chan("Already present.")
         else
