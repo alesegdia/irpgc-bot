@@ -5,16 +5,11 @@ pl = require 'pl.pretty'
 botdata = require("botdata")
 
 local botirc = require("botirc")
-
-local basemod = require("module.misc")
-local glmod = require("module.glmod")
-local talemod = require("module.talemod")
-local rimasmod = require("module.rimasmod")
-
-botirc:add_module(basemod)
-botirc:add_module(glmod)
-botirc:add_module(talemod)
-botirc:add_module(rimasmod)
+botirc:add_module(require("module.misc"))
+botirc:add_module(require("module.glmod"))
+botirc:add_module(require("module.talemod"))
+botirc:add_module(require("module.rimasmod"))
+botirc:add_module(require("module.correctormod"))
 
 botirc:connect()
 botirc:login()
